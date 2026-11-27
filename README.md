@@ -1,9 +1,9 @@
-# obsidian
+# obscure
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/obsidian-toolkit/obsidian.svg)](https://pkg.go.dev/github.com/obsidian-toolkit/obsidian)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-**obsidian** is a policy-driven Debian security and privacy toolkit. It manages
+**obscure** is a policy-driven Debian security and privacy toolkit. It manages
 firewall rules, SSH hardening, kernel sysctls, audit rules, log retention,
 unattended upgrades, and service sandboxing from a single declarative TOML
 policy. All operations are transactional, reversible, and designed to never
