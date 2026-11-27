@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 //go:embed default-policy.toml
@@ -26,26 +26,26 @@ func cmdInit(ctx context.Context, g *globals, o *output, args []string, stderr i
 	fs.StringVar(&path, "path", path, "where to write the policy")
 	fs.BoolVar(&force, "force", false, "overwrite an existing policy")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian init:", err)
+		fmt.Fprintln(stderr, "doit init:", err)
 		return 2
 	}
 	if _, err := os.Stat(path); err == nil && !force {
-		fmt.Fprintf(stderr, "obsidian: %s already exists (use --force to overwrite)\n", path)
+		fmt.Fprintf(stderr, "doit: %s already exists (use --force to overwrite)\n", path)
 		return 1
 	}
 	if strings.HasPrefix(path, "/etc/") && os.Geteuid() != 0 {
-		fmt.Fprintln(stderr, "obsidian: writing to /etc requires root (try: sudo obsidian init)")
+		fmt.Fprintln(stderr, "doit: writing to /etc requires root (try: sudo doit init)")
 		return 1
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		fmt.Fprintln(stderr, "obsidian:", err)
+		fmt.Fprintln(stderr, "doit:", err)
 		return 1
 	}
 	if err := os.WriteFile(path, defaultPolicy, 0o644); err != nil {
-		fmt.Fprintln(stderr, "obsidian:", err)
+		fmt.Fprintln(stderr, "doit:", err)
 		return 1
 	}
-	fmt.Fprintf(o.w, "wrote %s\nnext: edit it, then run sudo obsidian plan\n", path)
+	fmt.Fprintf(o.w, "wrote %s\nnext: edit it, then run sudo doit plan\n", path)
 	return 0
 }
 
@@ -54,7 +54,7 @@ func cmdCheck(ctx context.Context, g *globals, o *output, args []string, stderr 
 	fs.SetOutput(io.Discard)
 	addGlobalFlags(fs, g)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian check:", err)
+		fmt.Fprintln(stderr, "doit check:", err)
 		return 2
 	}
 	p, ok := loadPolicy(g, stderr)
@@ -101,7 +101,7 @@ func cmdRender(ctx context.Context, g *globals, o *output, args []string, stderr
 	outDir := ""
 	fs.StringVar(&outDir, "output", "", "write rendered files under this directory")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian render:", err)
+		fmt.Fprintln(stderr, "obscure render:", err)
 		return 2
 	}
 	p, ok := loadPolicy(g, stderr)
@@ -110,7 +110,7 @@ func cmdRender(ctx context.Context, g *globals, o *output, args []string, stderr
 	}
 	d, err := renderPolicy(p)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian render:", err)
+		fmt.Fprintln(stderr, "obscure render:", err)
 		return 1
 	}
 	if g.json {
@@ -118,7 +118,7 @@ func cmdRender(ctx context.Context, g *globals, o *output, args []string, stderr
 	}
 	if outDir != "" {
 		if err := writeRendered(d, outDir); err != nil {
-			fmt.Fprintln(stderr, "obsidian render:", err)
+			fmt.Fprintln(stderr, "obscure render:", err)
 			return 1
 		}
 		o.printf("rendered %d files under %s\n", len(d.Artifacts), outDir)
@@ -177,7 +177,7 @@ func cmdExplain(ctx context.Context, g *globals, o *output, args []string, stder
 	fs.SetOutput(io.Discard)
 	addGlobalFlags(fs, g)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian explain:", err)
+		fmt.Fprintln(stderr, "doit explain:", err)
 		return 2
 	}
 	p, ok := loadPolicy(g, stderr)
@@ -186,7 +186,7 @@ func cmdExplain(ctx context.Context, g *globals, o *output, args []string, stder
 	}
 	d, err := renderPolicy(p)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian explain:", err)
+		fmt.Fprintln(stderr, "doit explain:", err)
 		return 1
 	}
 	if g.json {

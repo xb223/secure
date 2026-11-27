@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
-const unattendedPath = "/etc/apt/apt.conf.d/52obsidian-unattended"
+const unattendedPath = "/etc/apt/apt.conf.d/52obscure-unattended"
 
 func renderUnattended(p *policy.Policy) Artifact {
 	var b strings.Builder

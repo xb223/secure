@@ -1,4 +1,4 @@
-// Package system provides the small, testable seam between obsidian and the
+// Package system provides the small, testable seam between obscure and the
 // host: file operations, command execution, host facts and session detection.
 package system
 
@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/landlock"
+	"github.com/obscure-toolkit/obscure/internal/landlock"
 )
 
 // Result is the outcome of an external command.
@@ -304,7 +304,7 @@ func (s *System) WriteFileAtomic(path string, data []byte, mode fs.FileMode, pre
 	if s.EUIDFn() != 0 {
 		uid, gid = -1, -1
 	}
-	tmp, err := os.CreateTemp(dir, ".obsidian-*")
+	tmp, err := os.CreateTemp(dir, ".obscure-*")
 	if err != nil {
 		return err
 	}
@@ -357,7 +357,7 @@ func (s *System) WriteFileOwned(path string, data []byte, mode fs.FileMode, uid,
 }
 
 // WriteFileRaw writes a file without atomic replacement (used for transaction
-// blobs in a directory obsidian owns).
+// blobs in a directory obscure owns).
 func (s *System) WriteFileRaw(path string, data []byte, mode fs.FileMode) error {
 	real := s.Path(path)
 	if err := os.MkdirAll(filepath.Dir(real), 0o700); err != nil {
@@ -472,7 +472,7 @@ func (s *System) SHA256File(path string) (string, error) {
 	return SHA256(data), nil
 }
 
-// SSHSession describes the SSH session obsidian is running inside, if any.
+// SSHSession describes the SSH session obscure is running inside, if any.
 type SSHSession struct {
 	Remote     bool
 	ClientIP   netip.Addr

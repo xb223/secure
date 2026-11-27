@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
-const sshDropInPath = "/etc/ssh/sshd_config.d/00-obsidian.conf"
+const sshDropInPath = "/etc/ssh/sshd_config.d/00-obscure.conf"
 
 func renderSSHD(p *policy.Policy) Artifact {
 	var b strings.Builder

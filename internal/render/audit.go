@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const auditRulesPath = "/etc/audit/rules.d/90-obsidian.rules"
+const auditRulesPath = "/etc/audit/rules.d/90-obscure.rules"
 
 func renderAuditRules(pathExists func(string) bool) Artifact {
 	var b strings.Builder
@@ -26,8 +26,8 @@ func renderAuditRules(pathExists func(string) bool) Artifact {
 		}
 		fmt.Fprintf(&b, "-w %s -p wa -k config-change\n", path)
 	}
-	// /etc/obsidian is created by obsidian before audit rules are loaded.
-	b.WriteString("-w /etc/obsidian/ -p wa -k config-change\n")
+	// /etc/obscure is created by obscure before audit rules are loaded.
+	b.WriteString("-w /etc/obscure/ -p wa -k config-change\n")
 	if pathExists == nil || pathExists("/etc/ssh/sshd_config") {
 		b.WriteString("-w /etc/ssh/sshd_config -p wa -k sshd-config\n")
 	}

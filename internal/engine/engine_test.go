@@ -10,8 +10,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 type fakeUnit struct {
@@ -76,7 +76,7 @@ func (f *fakeRunner) RunInput(ctx context.Context, input []byte, name string, ar
 		if len(args) > 0 && args[0] == "-s" {
 			return f.ok("enabled 1\n")
 		}
-		return f.ok("-w /etc/passwd -p wa\n-w /etc/shadow -p wa\n-w /etc/sudoers -p wa\n-w /etc/obsidian/ -p wa\n")
+		return f.ok("-w /etc/passwd -p wa\n-w /etc/shadow -p wa\n-w /etc/sudoers -p wa\n-w /etc/obscure/ -p wa\n")
 	case "augenrules", "apparmor_parser", "systemd-analyze", "apt-get", "aa-enforce", "aa-complain":
 		return f.ok("")
 	case "aa-status":
@@ -290,7 +290,7 @@ func newTestEngine(t *testing.T) (*Engine, *fakeRunner, *policy.Policy) {
 	sys.LandlockABIFn = func() int { return 0 }
 
 	eng := &Engine{
-		Sys: sys, StateDir: "/var/lib/obsidian", RunDir: "/run/obsidian",
+		Sys: sys, StateDir: "/var/lib/obscure", RunDir: "/run/obscure",
 		Out: os.Stderr, Err: os.Stderr, NoWatchdog: true,
 	}
 	pol := parseTestPolicy(t)
@@ -353,10 +353,10 @@ func TestPlanApplyVerifyRollback(t *testing.T) {
 	if plan.Lockout.Risky {
 		t.Fatal("local session must not be treated as a lockout risk")
 	}
-	if !hasChange(plan, "file", "/etc/obsidian/firewall.nft") {
+	if !hasChange(plan, "file", "/etc/obscure/firewall.nft") {
 		t.Fatalf("missing firewall file change: %+v", plan.Changes)
 	}
-	if !hasChange(plan, "nft", "inet obsidian") {
+	if !hasChange(plan, "nft", "inet obscure") {
 		t.Fatalf("missing nft change: %+v", plan.Changes)
 	}
 
@@ -370,12 +370,12 @@ func TestPlanApplyVerifyRollback(t *testing.T) {
 	if result.Checks == nil || result.Checks.Drift() != 0 {
 		t.Fatalf("post-apply drift: %+v", result.Checks)
 	}
-	for _, path := range []string{"/etc/obsidian/firewall.nft", "/etc/systemd/system/obsidian-firewall.service"} {
+	for _, path := range []string{"/etc/obscure/firewall.nft", "/etc/systemd/system/obscure-firewall.service"} {
 		if !eng.Sys.Exists(path) {
 			t.Fatalf("expected %s to exist", path)
 		}
 	}
-	if !fake.units["obsidian-firewall.service"].active {
+	if !fake.units["obscure-firewall.service"].active {
 		t.Fatal("firewall service was not started")
 	}
 
@@ -388,7 +388,7 @@ func TestPlanApplyVerifyRollback(t *testing.T) {
 	}
 
 	// Tampering must show up as drift and as a planned repair.
-	tampered := filepath.Join(eng.Sys.Root, "etc/obsidian/firewall.nft")
+	tampered := filepath.Join(eng.Sys.Root, "etc/obscure/firewall.nft")
 	if err := os.WriteFile(tampered, []byte("tampered\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -403,7 +403,7 @@ func TestPlanApplyVerifyRollback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !hasChange(plan, "file", "/etc/obsidian/firewall.nft") {
+	if !hasChange(plan, "file", "/etc/obscure/firewall.nft") {
 		t.Fatal("expected the tampered file to be repaired")
 	}
 
@@ -414,10 +414,10 @@ func TestPlanApplyVerifyRollback(t *testing.T) {
 	if m.Status != "rolled-back" {
 		t.Fatalf("manifest status = %q", m.Status)
 	}
-	if eng.Sys.Exists("/etc/obsidian/firewall.nft") {
+	if eng.Sys.Exists("/etc/obscure/firewall.nft") {
 		t.Fatal("rollback should remove a file that did not exist before apply")
 	}
-	if eng.Sys.Exists("/etc/systemd/system/obsidian-firewall.service") {
+	if eng.Sys.Exists("/etc/systemd/system/obscure-firewall.service") {
 		t.Fatal("rollback should remove the generated unit")
 	}
 	if eng.Sys.Exists(eng.StatePath()) {

@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/engine"
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/engine"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
 type output struct {
@@ -52,7 +52,7 @@ func (o *output) emitJSON(v any) int {
 	enc := json.NewEncoder(o.w)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(v); err != nil {
-		fmt.Fprintln(os.Stderr, "obsidian:", err)
+		fmt.Fprintln(os.Stderr, "doit:", err)
 		return 1
 	}
 	return 0

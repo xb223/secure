@@ -5,16 +5,16 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
 const (
-	firewallPath      = "/etc/obsidian/firewall.nft"
-	firewallUnitPath  = "/etc/systemd/system/obsidian-firewall.service"
-	firewallUnitName  = "obsidian-firewall.service"
-	sandboxFWPath     = "/etc/obsidian/sandbox.nft"
-	sandboxFWUnitPath = "/etc/systemd/system/obsidian-sandbox-firewall.service"
-	sandboxFWUnitName = "obsidian-sandbox-firewall.service"
+	firewallPath      = "/etc/obscure/firewall.nft"
+	firewallUnitPath  = "/etc/systemd/system/obscure-firewall.service"
+	firewallUnitName  = "obscure-firewall.service"
+	sandboxFWPath     = "/etc/obscure/sandbox.nft"
+	sandboxFWUnitPath = "/etc/systemd/system/obscure-sandbox-firewall.service"
+	sandboxFWUnitName = "obscure-sandbox-firewall.service"
 )
 
 type exposureSpec struct {
@@ -53,8 +53,8 @@ func renderFirewallExtra(p *policy.Policy, extraSSHPort int) (NFTTable, error) {
 	b.WriteString("# Exposure model: input is denied by default; loopback and replies are allowed.\n")
 	b.WriteString("# Public services are accepted only on the public interface. Admin-only\n")
 	b.WriteString("# services are accepted only from admin.source_cidrs on admin interfaces.\n")
-	b.WriteString("flush table inet obsidian\n")
-	b.WriteString("table inet obsidian {\n")
+	b.WriteString("flush table inet obscure\n")
+	b.WriteString("table inet obscure {\n")
 
 	prefixes := p.AdminPrefixes()
 	var v4, v6 []netip.Prefix
@@ -78,15 +78,15 @@ func renderFirewallExtra(p *policy.Policy, extraSSHPort int) (NFTTable, error) {
 
 	b.WriteString("  chain input {\n")
 	b.WriteString("    type filter hook input priority filter; policy drop;\n")
-	b.WriteString("    iifname \"lo\" accept comment \"obsidian:loopback\"\n")
-	b.WriteString("    ct state established,related accept comment \"obsidian:replies\"\n")
-	b.WriteString("    ct state invalid drop comment \"obsidian:invalid\"\n")
-	b.WriteString("    udp sport 67 udp dport 68 accept comment \"obsidian:dhcp-client\"\n")
-	b.WriteString("    udp sport 547 udp dport 546 accept comment \"obsidian:dhcpv6-client\"\n")
-	b.WriteString("    icmp type { destination-unreachable, time-exceeded, parameter-problem } accept comment \"obsidian:icmp\"\n")
-	b.WriteString("    icmp type echo-request limit rate 5/second burst 10 packets accept comment \"obsidian:icmp-echo\"\n")
-	b.WriteString("    icmpv6 type { destination-unreachable, packet-too-big, time-exceeded, parameter-problem, nd-neighbor-solicit, nd-neighbor-advert, nd-router-solicit, nd-router-advert, nd-redirect } accept comment \"obsidian:icmpv6\"\n")
-	b.WriteString("    icmpv6 type echo-request limit rate 5/second burst 10 packets accept comment \"obsidian:icmpv6-echo\"\n")
+	b.WriteString("    iifname \"lo\" accept comment \"obscure:loopback\"\n")
+	b.WriteString("    ct state established,related accept comment \"obscure:replies\"\n")
+	b.WriteString("    ct state invalid drop comment \"obscure:invalid\"\n")
+	b.WriteString("    udp sport 67 udp dport 68 accept comment \"obscure:dhcp-client\"\n")
+	b.WriteString("    udp sport 547 udp dport 546 accept comment \"obscure:dhcpv6-client\"\n")
+	b.WriteString("    icmp type { destination-unreachable, time-exceeded, parameter-problem } accept comment \"obscure:icmp\"\n")
+	b.WriteString("    icmp type echo-request limit rate 5/second burst 10 packets accept comment \"obscure:icmp-echo\"\n")
+	b.WriteString("    icmpv6 type { destination-unreachable, packet-too-big, time-exceeded, parameter-problem, nd-neighbor-solicit, nd-neighbor-advert, nd-router-solicit, nd-router-advert, nd-redirect } accept comment \"obscure:icmpv6\"\n")
+	b.WriteString("    icmpv6 type echo-request limit rate 5/second burst 10 packets accept comment \"obscure:icmpv6-echo\"\n")
 
 	interfaces := p.AdminInterfaces()
 	commented := map[string]bool{}
@@ -109,11 +109,11 @@ func renderFirewallExtra(p *policy.Policy, extraSSHPort int) (NFTTable, error) {
 			}
 			fmt.Fprintf(&b, "    iifname %s %s dport %d accept comment %s\n",
 				quoteNftString(p.PublicInterface), spec.proto, spec.port,
-				quoteNftString("obsidian:"+field+"=public"))
+				quoteNftString("obscure:"+field+"=public"))
 			if spec.name == "ssh" && extraSSHPort > 0 && extraSSHPort != spec.port {
 				fmt.Fprintf(&b, "    iifname %s %s dport %d accept comment %s\n",
 					quoteNftString(p.PublicInterface), spec.proto, extraSSHPort,
-					quoteNftString("obsidian:ssh-transition"))
+					quoteNftString("obscure:ssh-transition"))
 			}
 		case policy.ExposureAdminOnly:
 			if len(prefixes) == 0 {
@@ -125,26 +125,26 @@ func renderFirewallExtra(p *policy.Policy, extraSSHPort int) (NFTTable, error) {
 			ifaceSet := nftStringSet(interfaces)
 			if len(v4) > 0 {
 				fmt.Fprintf(&b, "    iifname %s ip saddr @admin_v4 %s dport %d accept comment %s\n",
-					ifaceSet, spec.proto, spec.port, quoteNftString("obsidian:"+field+"=admin-only"))
+					ifaceSet, spec.proto, spec.port, quoteNftString("obscure:"+field+"=admin-only"))
 			}
 			if len(v6) > 0 {
 				fmt.Fprintf(&b, "    iifname %s ip6 saddr @admin_v6 %s dport %d accept comment %s\n",
-					ifaceSet, spec.proto, spec.port, quoteNftString("obsidian:"+field+"=admin-only"))
+					ifaceSet, spec.proto, spec.port, quoteNftString("obscure:"+field+"=admin-only"))
 			}
 			if spec.name == "ssh" && extraSSHPort > 0 && extraSSHPort != spec.port {
 				if len(v4) > 0 {
 					fmt.Fprintf(&b, "    iifname %s ip saddr @admin_v4 %s dport %d accept comment %s\n",
-						ifaceSet, spec.proto, extraSSHPort, quoteNftString("obsidian:ssh-transition"))
+						ifaceSet, spec.proto, extraSSHPort, quoteNftString("obscure:ssh-transition"))
 				}
 				if len(v6) > 0 {
 					fmt.Fprintf(&b, "    iifname %s ip6 saddr @admin_v6 %s dport %d accept comment %s\n",
-						ifaceSet, spec.proto, extraSSHPort, quoteNftString("obsidian:ssh-transition"))
+						ifaceSet, spec.proto, extraSSHPort, quoteNftString("obscure:ssh-transition"))
 				}
 			}
 		}
 	}
 
-	b.WriteString("    limit rate 10/minute log prefix \"obsidian:input-drop: \" level warn\n")
+	b.WriteString("    limit rate 10/minute log prefix \"obscure:input-drop: \" level warn\n")
 	b.WriteString("  }\n")
 	b.WriteString("  chain forward {\n")
 	b.WriteString("    type filter hook forward priority filter; policy drop;\n")
@@ -154,9 +154,9 @@ func renderFirewallExtra(p *policy.Policy, extraSSHPort int) (NFTTable, error) {
 	b.WriteString("  }\n")
 	b.WriteString("}\n")
 
-	unit := firewallUnit(firewallUnitName, "obsidian firewall", firewallPath, "inet obsidian")
+	unit := firewallUnit(firewallUnitName, "obscure firewall", firewallPath, "inet obscure")
 	return NFTTable{
-		Name: "inet obsidian", Path: firewallPath, Content: []byte(b.String()),
+		Name: "inet obscure", Path: firewallPath, Content: []byte(b.String()),
 		ServiceName: firewallUnitName, ServicePath: firewallUnitPath, ServiceContent: []byte(unit),
 		Reason: "default-deny inbound firewall with policy exposures",
 	}, nil
@@ -215,7 +215,7 @@ PrivateTmp=yes
 PrivateDevices=yes
 RestrictAddressFamilies=AF_NETLINK AF_UNIX
 SystemCallArchitectures=native
-ReadOnlyPaths=/etc/obsidian
+ReadOnlyPaths=/etc/obscure
 
 [Install]
 WantedBy=multi-user.target
@@ -239,7 +239,7 @@ func renderSandboxFirewall(p *policy.Policy, opts Options) (*NFTTable, error) {
 		}
 		match := fmt.Sprintf("meta skuid %d", uid)
 		comment := func(suffix string) string {
-			return quoteNftString("obsidian:sandbox." + name + ":" + suffix)
+			return quoteNftString("obscure:sandbox." + name + ":" + suffix)
 		}
 		switch sb.Network {
 		case "none":
@@ -265,8 +265,8 @@ func renderSandboxFirewall(p *policy.Policy, opts Options) (*NFTTable, error) {
 	b.WriteString(header("sandbox egress"))
 	b.WriteString("# Egress rules match the UID of each sandbox service. Every sandbox must\n")
 	b.WriteString("# use its own run_as user; rules are evaluated in order.\n")
-	b.WriteString("flush table inet obsidian_sandbox\n")
-	b.WriteString("table inet obsidian_sandbox {\n")
+	b.WriteString("flush table inet obscure_sandbox\n")
+	b.WriteString("table inet obscure_sandbox {\n")
 	b.WriteString("  chain output {\n")
 	b.WriteString("    type filter hook output priority filter; policy accept;\n")
 	for _, rule := range rules {
@@ -275,9 +275,9 @@ func renderSandboxFirewall(p *policy.Policy, opts Options) (*NFTTable, error) {
 	}
 	b.WriteString("  }\n")
 	b.WriteString("}\n")
-	unit := firewallUnit(sandboxFWUnitName, "obsidian sandbox egress firewall", sandboxFWPath, "inet obsidian_sandbox")
+	unit := firewallUnit(sandboxFWUnitName, "obscure sandbox egress firewall", sandboxFWPath, "inet obscure_sandbox")
 	return &NFTTable{
-		Name: "inet obsidian_sandbox", Path: sandboxFWPath, Content: []byte(b.String()),
+		Name: "inet obscure_sandbox", Path: sandboxFWPath, Content: []byte(b.String()),
 		ServiceName: sandboxFWUnitName, ServicePath: sandboxFWUnitPath, ServiceContent: []byte(unit),
 		Reason: "restrict sandbox egress to the policy network mode", Sandbox: true,
 	}, nil

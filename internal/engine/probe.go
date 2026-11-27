@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 // sshdBin finds sshd even when /usr/sbin is not on PATH.

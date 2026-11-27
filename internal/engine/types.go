@@ -4,9 +4,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 // Scope limits an operation to the full policy or to sandboxes.

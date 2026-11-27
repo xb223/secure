@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
-const journaldPath = "/etc/systemd/journald.conf.d/90-obsidian.conf"
+const journaldPath = "/etc/systemd/journald.conf.d/90-obscure.conf"
 
 func renderJournald(p *policy.Policy) Artifact {
 	var b strings.Builder

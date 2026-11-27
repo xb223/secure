@@ -1,16 +1,16 @@
-.\" obsidian(1) - policy-driven Debian security and privacy toolkit
+.\" doit(1) - policy-driven Debian security and privacy toolkit
 .\"
-.\" Copyright 2024 The obsidian Authors
+.\" Copyright 2024 The obscure Authors
 .\" Licensed under the Apache License, Version 2.0
 .\"
-.TH OBSIDIAN 1 "November 2024" "obsidian 0.1.0" "User Commands"
+.TH OBSIDIAN 1 "November 2024" "doit 0.1.0" "User Commands"
 .SH NAME
-obsidian \- policy-driven Debian security and privacy toolkit
+doit \- policy-driven Debian security and privacy toolkit
 .SH SYNOPSIS
-.B obsidian
+.B doit
 [\fIglobal flags\fR] \fIcommand\fR [\fIcommand flags\fR]
 .SH DESCRIPTION
-.B obsidian
+.B doit
 manages firewall rules, SSH hardening, kernel sysctls, audit rules, log
 retention, unattended upgrades, and service sandboxing from a single
 declarative TOML policy. All operations are transactional, reversible, and
@@ -18,7 +18,7 @@ designed to never accidentally lock you out of a remote server.
 .SH COMMANDS
 .TP
 .B init
-Write a starter policy to \fI/etc/obsidian/policy.toml\fR.
+Write a starter policy to \fI/etc/obscure/policy.toml\fR.
 .TP
 .B check
 Parse and validate the policy, showing warnings.
@@ -62,7 +62,7 @@ Show this help message.
 .SH GLOBAL FLAGS
 .TP
 .B --config \fIPATH\fR
-Policy file (default \fI/etc/obsidian/policy.toml\fR).
+Policy file (default \fI/etc/obscure/policy.toml\fR).
 .TP
 .B --json
 Machine-readable JSON output.
@@ -140,67 +140,67 @@ Service isolation: \fIbinary\fR, \fIrun_as\fR, \fIgroup\fR, \fIargs\fR,
 .B [hardening]
 \fIsysctl\fR, \fIssh\fR.
 .SH SAFETY
-If \fBobsidian\fR detects it is running inside an SSH session (via
+If \fBobscure\fR detects it is running inside an SSH session (via
 \fISSH_CONNECTION\fR, \fISSH_CLIENT\fR, or process ancestry), it refuses to
 apply firewall or SSH changes that would drop that session, unless
 \fB--allow-lockout\fR is given. This prevents accidental lockout of remote
 servers.
 .SH TRANSACTIONS
 Every \fBapply\fR creates a transaction directory under
-\fI/var/lib/obsidian/transactions/\fR containing snapshots of all managed
+\fI/var/lib/obscure/transactions/\fR containing snapshots of all managed
 files, service states, and nftables rulesets. On failure, the transaction is
 rolled back automatically. Use \fBrollback\fR to restore a previous state
 manually.
 .SH FILES
 .TP
-\fI/etc/obsidian/policy.toml\fR
+\fI/etc/obscure/policy.toml\fR
 Policy file.
 .TP
-\fI/var/lib/obsidian/state.json\fR
+\fI/var/lib/obscure/state.json\fR
 Current applied state.
 .TP
-\fI/var/lib/obsidian/transactions/\fR
+\fI/var/lib/obscure/transactions/\fR
 Transaction snapshots.
 .TP
-\fI/run/obsidian.lock\fR
+\fI/run/obscure.lock\fR
 Global lock preventing concurrent applies.
 .SH EXAMPLES
 .TP
 .B Create and edit a policy
 .in +4
 .nf
-$ sudo obsidian init
-$ sudo vim /etc/obsidian/policy.toml
+$ sudo doit init
+$ sudo vim /etc/obscure/policy.toml
 .fi
 .in
 .TP
 .B Preview and apply
 .in +4
 .nf
-$ sudo obsidian plan
-$ sudo obsidian apply
+$ sudo doit plan
+$ sudo doit apply
 .fi
 .in
 .TP
 .B Verify and show drift
 .in +4
 .nf
-$ sudo obsidian verify
-$ sudo obsidian drift
+$ sudo doit verify
+$ sudo doit drift
 .fi
 .in
 .TP
 .B Roll back the last apply
 .in +4
 .nf
-$ sudo obsidian rollback
+$ sudo doit rollback
 .fi
 .in
 .TP
 .B Apply only one sandbox
 .in +4
 .nf
-$ sudo obsidian isolate myapp
+$ sudo doit isolate myapp
 .fi
 .in
 .SH SEE ALSO
@@ -210,6 +210,6 @@ $ sudo obsidian isolate myapp
 .BR landlock (7),
 .BR auditd (8)
 .SH AUTHORS
-The obsidian Authors <https://github.com/obsidian-toolkit/obsidian>
+The obscure Authors <https://github.com/obscure-toolkit/obscure>
 .SH LICENSE
 Apache-2.0

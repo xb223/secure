@@ -1,4 +1,4 @@
-// Package policy parses and validates the obsidian policy file.
+// Package policy parses and validates the obscure policy file.
 //
 // The policy is deliberately small. Unknown keys are errors: a typo in a
 // security policy must never silently weaken the host.

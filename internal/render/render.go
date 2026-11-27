@@ -1,5 +1,5 @@
 // Package render turns a validated policy into the exact files and service
-// states that obsidian will manage. Rendering is pure: it never touches the
+// states that obscure will manage. Rendering is pure: it never touches the
 // live host except through read-only fact probes supplied in Options.
 package render
 
@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
 // ArtifactKind classifies a managed file.
@@ -284,7 +284,7 @@ var telemetryServices = []string{
 }
 
 func header(section string) string {
-	return "# Managed by obsidian (" + section + "). Do not edit.\n" +
+	return "# Managed by obscure (" + section + "). Do not edit.\n" +
 		"# Changes are detected as drift and replaced from the policy.\n"
 }
 

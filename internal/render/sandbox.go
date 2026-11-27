@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/sandbox"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/sandbox"
 )
 
 const (
-	sandboxDir     = "/etc/obsidian/sandbox"
+	sandboxDir     = "/etc/obscure/sandbox"
 	sandboxUnitDir = "/etc/systemd/system"
 	appArmorDir    = "/etc/apparmor.d"
-	obsidianBin    = "/usr/local/bin/obsidian"
+	obscureBin    = "/usr/local/bin/obscure"
 )
 
 var implicitReadOnly = []string{
@@ -41,8 +41,8 @@ var implicitReadOnly = []string{
 }
 
 func renderSandbox(p *policy.Policy, name string, sb policy.Sandbox, opts Options, d *Desired) (Sandbox, error) {
-	profileName := "obsidian-" + name
-	unitName := "obsidian-" + name + ".service"
+	profileName := "obscure-" + name
+	unitName := "obscure-" + name + ".service"
 	unitPath := sandboxUnitDir + "/" + unitName
 	configPath := sandboxDir + "/" + name + ".json"
 	profilePath := appArmorDir + "/" + profileName
@@ -136,7 +136,7 @@ func renderSandboxUnit(name string, sb policy.Sandbox, out Sandbox) string {
 	var b strings.Builder
 	b.WriteString(header("sandbox " + name))
 	b.WriteString("[Unit]\n")
-	fmt.Fprintf(&b, "Description=obsidian sandbox: %s\n", name)
+	fmt.Fprintf(&b, "Description=obscure sandbox: %s\n", name)
 	if sb.Network != "none" {
 		b.WriteString("After=network-online.target\nWants=network-online.target\n")
 	}
@@ -148,7 +148,7 @@ func renderSandboxUnit(name string, sb policy.Sandbox, out Sandbox) string {
 		fmt.Fprintf(&b, "Group=%s\n", sb.Group)
 	}
 	if out.Landlock {
-		fmt.Fprintf(&b, "ExecStart=%s sandbox-run --config %s\n", unitArg(obsidianBin), unitArg(out.ConfigPath))
+		fmt.Fprintf(&b, "ExecStart=%s sandbox-run --config %s\n", unitArg(obscureBin), unitArg(out.ConfigPath))
 	} else {
 		parts := []string{unitArg(sb.Binary)}
 		for _, a := range sb.Args {
@@ -168,7 +168,7 @@ func renderSandboxUnit(name string, sb policy.Sandbox, out Sandbox) string {
 	b.WriteString("RestartSec=2s\n")
 	b.WriteString("UMask=0077\n")
 	b.WriteString("StandardOutput=journal\nStandardError=journal\n")
-	fmt.Fprintf(&b, "SyslogIdentifier=obsidian-%s\n", name)
+	fmt.Fprintf(&b, "SyslogIdentifier=obscure-%s\n", name)
 	b.WriteString("\n# Process hardening\n")
 	b.WriteString("NoNewPrivileges=yes\n")
 	b.WriteString("PrivateTmp=yes\n")
@@ -253,7 +253,7 @@ func renderAppArmorProfile(name string, sb policy.Sandbox, mode string) string {
 	if mode == "complain" {
 		flags += ",complain"
 	}
-	fmt.Fprintf(&b, "profile %s %s flags=(%s) {\n", "obsidian-"+name, sb.Binary, flags)
+	fmt.Fprintf(&b, "profile %s %s flags=(%s) {\n", "obscure-"+name, sb.Binary, flags)
 	b.WriteString("  #include <abstractions/base>\n")
 	b.WriteString("  #include <abstractions/nameservice>\n")
 	b.WriteString("  #include <abstractions/ssl_certs>\n\n")

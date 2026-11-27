@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
-const sysctlPath = "/etc/sysctl.d/99-zz-obsidian.conf"
+const sysctlPath = "/etc/sysctl.d/99-zz-obscure.conf"
 
 type sysctlDefault struct {
 	key, value, reason string

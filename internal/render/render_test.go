@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/policy"
 )
 
 func example(t *testing.T) *policy.Policy {
@@ -113,7 +113,7 @@ func TestRenderExample(t *testing.T) {
 		"ProtectSystem=strict",
 		"ReadWritePaths=/var/lib/myapp",
 		"ReadOnlyPaths=/etc/myapp",
-		"AppArmorProfile=obsidian-myapp",
+		"AppArmorProfile=obscure-myapp",
 		"NoNewPrivileges=yes",
 		"SystemCallFilter=@system-service",
 	} {
@@ -137,7 +137,7 @@ func TestRenderExample(t *testing.T) {
 	}
 	profile := string(sb.ProfileContent)
 	for _, want := range []string{
-		"profile obsidian-myapp /usr/local/bin/myapp",
+		"profile obscure-myapp /usr/local/bin/myapp",
 		"/var/lib/myapp/** rwlk",
 		"/etc/myapp/** r",
 		"deny /etc/shadow r",
@@ -212,7 +212,7 @@ func TestLandlockFallback(t *testing.T) {
 		t.Fatal("Landlock should be used when AppArmor is unavailable")
 	}
 	unit := string(sb.UnitContent)
-	if !strings.Contains(unit, "sandbox-run --config /etc/obsidian/sandbox/myapp.json") {
+	if !strings.Contains(unit, "sandbox-run --config /etc/obscure/sandbox/myapp.json") {
 		t.Errorf("unit missing Landlock wrapper:\n%s", unit)
 	}
 	if sb.ProfileContent != nil {

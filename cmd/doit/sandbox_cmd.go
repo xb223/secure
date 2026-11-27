@@ -7,9 +7,9 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/obsidian-toolkit/obsidian/internal/engine"
-	"github.com/obsidian-toolkit/obsidian/internal/landlock"
-	"github.com/obsidian-toolkit/obsidian/internal/sandbox"
+	"github.com/obscure-toolkit/obscure/internal/engine"
+	"github.com/obscure-toolkit/obscure/internal/landlock"
+	"github.com/obscure-toolkit/obscure/internal/sandbox"
 )
 
 // cmdSandboxRun applies Landlock rules and then replaces itself with the
@@ -20,24 +20,24 @@ func cmdSandboxRun(args []string, stderr io.Writer) int {
 	configPath := ""
 	fs.StringVar(&configPath, "config", "", "sandbox config file")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian sandbox-run:", err)
+		fmt.Fprintln(stderr, "doit sandbox-run:", err)
 		return 2
 	}
 	if configPath == "" {
-		fmt.Fprintln(stderr, "obsidian sandbox-run: --config is required")
+		fmt.Fprintln(stderr, "doit sandbox-run: --config is required")
 		return 2
 	}
 	if os.Geteuid() == 0 {
-		fmt.Fprintln(stderr, "obsidian sandbox-run: refusing to run as root")
+		fmt.Fprintln(stderr, "doit sandbox-run: refusing to run as root")
 		return 1
 	}
 	cfg, err := sandbox.Load(configPath)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian sandbox-run:", err)
+		fmt.Fprintln(stderr, "doit sandbox-run:", err)
 		return 1
 	}
 	if landlock.DetectABI() == 0 {
-		fmt.Fprintln(stderr, "obsidian sandbox-run: this kernel does not support Landlock")
+		fmt.Fprintln(stderr, "doit sandbox-run: this kernel does not support Landlock")
 		return 1
 	}
 	readOnly := append([]string{}, cfg.ImplicitReadOnly...)
@@ -49,12 +49,12 @@ func cmdSandboxRun(args []string, stderr io.Writer) int {
 	readOnly = existingPaths(readOnly, stderr)
 	readWrite = existingPaths(readWrite, stderr)
 	if err := landlock.Apply(readWrite, readOnly); err != nil {
-		fmt.Fprintln(stderr, "obsidian sandbox-run:", err)
+		fmt.Fprintln(stderr, "doit sandbox-run:", err)
 		return 1
 	}
 	argv := append([]string{cfg.Binary}, cfg.Args...)
 	if err := syscall.Exec(cfg.Binary, argv, os.Environ()); err != nil {
-		fmt.Fprintf(stderr, "obsidian sandbox-run: exec %s: %v\n", cfg.Binary, err)
+		fmt.Fprintf(stderr, "doit sandbox-run: exec %s: %v\n", cfg.Binary, err)
 		return 1
 	}
 	return 0
@@ -69,7 +69,7 @@ func existingPaths(paths []string, stderr io.Writer) []string {
 		}
 		seen[path] = true
 		if _, err := os.Stat(path); err != nil {
-			fmt.Fprintf(stderr, "obsidian sandbox-run: skipping unavailable path %s: %v\n", path, err)
+			fmt.Fprintf(stderr, "doit sandbox-run: skipping unavailable path %s: %v\n", path, err)
 			continue
 		}
 		out = append(out, path)
@@ -85,15 +85,15 @@ func cmdWatchdog(args []string, stderr io.Writer) int {
 	fs.StringVar(&dir, "transaction-dir", "", "transaction directory")
 	fs.IntVar(&timeout, "timeout", 0, "grace period in seconds")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian watchdog:", err)
+		fmt.Fprintln(stderr, "obscure watchdog:", err)
 		return 2
 	}
 	if dir == "" {
-		fmt.Fprintln(stderr, "obsidian watchdog: --transaction-dir is required")
+		fmt.Fprintln(stderr, "obscure watchdog: --transaction-dir is required")
 		return 2
 	}
 	if err := engine.RunWatchdog(dir, timeout); err != nil {
-		fmt.Fprintln(stderr, "obsidian watchdog:", err)
+		fmt.Fprintln(stderr, "obscure watchdog:", err)
 		return 1
 	}
 	return 0

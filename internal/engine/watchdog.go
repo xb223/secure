@@ -9,14 +9,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 const (
-	// DefaultStateDir is where obsidian keeps state and transactions.
-	DefaultStateDir = "/var/lib/obsidian"
+	// DefaultStateDir is where obscure keeps state and transactions.
+	DefaultStateDir = "/var/lib/obscure"
 	// DefaultRunDir is where the lock and temporary preflight files live.
-	DefaultRunDir = "/run/obsidian"
+	DefaultRunDir = "/run/obscure"
 )
 
 // startWatchdog launches a detached helper that rolls the transaction back if

@@ -1,7 +1,7 @@
 # Build artifacts
-/obsidian
-/obsidian-*
-!cmd/obsidian/
+/obscure
+/obscure-*
+!cmd/obscure/
 *.test
 
 # Go
@@ -30,9 +30,9 @@ coverage.*
 *.temp
 
 # Policy (local overrides)
-/etc/obsidian/policy.toml
-!/etc/obsidian/policy.toml.example
+/etc/obscure/policy.toml
+!/etc/obscure/policy.toml.example
 
 # State directories (created at runtime)
-/var/lib/obsidian/
-/run/obsidian/
+/var/lib/obscure/
+/run/obscure/

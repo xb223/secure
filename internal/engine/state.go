@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 const stateVersion = 1
 
-// ServiceOrigin records the state of a unit before obsidian first managed it.
+// ServiceOrigin records the state of a unit before obscure first managed it.
 type ServiceOrigin struct {
 	Exists  bool   `json:"exists"`
 	Enabled string `json:"enabled,omitempty"`
@@ -21,7 +21,7 @@ type ServiceOrigin struct {
 	Masked  bool   `json:"masked"`
 }
 
-// State is the durable record of what obsidian manages. It is used to detect
+// State is the durable record of what obscure manages. It is used to detect
 // orphans and to restore service state when a service leaves the policy.
 type State struct {
 	Version     int                      `json:"version"`

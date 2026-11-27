@@ -1,7 +1,7 @@
-# obsidian policy. See obsidian(1) and `obsidian explain`.
+# obscure policy. See obscure(1) and `doit explain`.
 #
 # Start with the real public interface and the address range you administer
-# from. Preview every change with `sudo obsidian plan` before applying it.
+# from. Preview every change with `sudo doit plan` before applying it.
 
 role = "web-server"
 public_interface = "eth0"

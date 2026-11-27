@@ -1,4 +1,4 @@
-// Package sandbox contains the runtime side of obsidian sandboxes. The
+// Package sandbox contains the runtime side of obscure sandboxes. The
 // sandbox-run command is a small, unprivileged wrapper that applies Landlock
 // filesystem rules and then execs the service binary.
 package sandbox

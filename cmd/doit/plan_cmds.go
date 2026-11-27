@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/engine"
+	"github.com/obscure-toolkit/obscure/internal/engine"
 )
 
 func cmdPlan(ctx context.Context, g *globals, o *output, args []string, stderr io.Writer) int {
@@ -17,7 +17,7 @@ func cmdPlan(ctx context.Context, g *globals, o *output, args []string, stderr i
 	fs.SetOutput(io.Discard)
 	addGlobalFlags(fs, g)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian plan:", err)
+		fmt.Fprintln(stderr, "doit plan:", err)
 		return 2
 	}
 	if !requireRoot(g, stderr, "plan") {
@@ -30,7 +30,7 @@ func cmdPlan(ctx context.Context, g *globals, o *output, args []string, stderr i
 	e := newEngine(g, o.w, stderr)
 	plan, err := e.Plan(ctx, p, scopeFrom(g), g.allowLockout)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian plan:", err)
+		fmt.Fprintln(stderr, "doit plan:", err)
 		return 1
 	}
 	if g.json {
@@ -49,7 +49,7 @@ func cmdApply(ctx context.Context, g *globals, o *output, args []string, stderr 
 	fs.SetOutput(io.Discard)
 	addGlobalFlags(fs, g)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian apply:", err)
+		fmt.Fprintln(stderr, "doit apply:", err)
 		return 2
 	}
 	if !requireRoot(g, stderr, "apply") {
@@ -62,7 +62,7 @@ func cmdApply(ctx context.Context, g *globals, o *output, args []string, stderr 
 	e := newEngine(g, o.w, stderr)
 	plan, err := e.Plan(ctx, p, scopeFrom(g), g.allowLockout)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian apply:", err)
+		fmt.Fprintln(stderr, "doit apply:", err)
 		return 1
 	}
 	if g.json && !g.dryRun {
@@ -76,7 +76,7 @@ func cmdApply(ctx context.Context, g *globals, o *output, args []string, stderr 
 		if g.json {
 			o.emitJSON(plan)
 		}
-		fmt.Fprintln(stderr, "obsidian: refusing to apply until the errors above are resolved")
+		fmt.Fprintln(stderr, "doit: refusing to apply until the errors above are resolved")
 		return 1
 	}
 	if !plan.HasChanges() {
@@ -107,13 +107,13 @@ func cmdApply(ctx context.Context, g *globals, o *output, args []string, stderr 
 			o.emitJSON(result)
 		}
 		if err != nil {
-			fmt.Fprintln(stderr, "obsidian apply:", err)
+			fmt.Fprintln(stderr, "doit apply:", err)
 			return 1
 		}
 		return 0
 	}
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian apply:", err)
+		fmt.Fprintln(stderr, "doit apply:", err)
 		return 1
 	}
 	if result.RolledBack {
@@ -130,7 +130,7 @@ func cmdApply(ctx context.Context, g *globals, o *output, args []string, stderr 
 
 func confirm(prompt string) bool {
 	if !isTerminal(os.Stdin) && !isTerminal(os.Stdout) {
-		fmt.Fprintln(os.Stderr, "obsidian: refusing to prompt without a terminal (use --yes to confirm non-interactively)")
+		fmt.Fprintln(os.Stderr, "doit: refusing to prompt without a terminal (use --yes to confirm non-interactively)")
 		return false
 	}
 	fmt.Fprintf(os.Stderr, "%s [y/N] ", prompt)
@@ -154,7 +154,7 @@ func cmdVerify(ctx context.Context, g *globals, o *output, args []string, stderr
 	fs.SetOutput(io.Discard)
 	addGlobalFlags(fs, g)
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintf(stderr, "obsidian %s: %v\n", name, err)
+		fmt.Fprintf(stderr, "doit %s: %v\n", name, err)
 		return 2
 	}
 	if !requireRoot(g, stderr, name) {
@@ -167,7 +167,7 @@ func cmdVerify(ctx context.Context, g *globals, o *output, args []string, stderr
 	e := newEngine(g, o.w, stderr)
 	result, err := e.Verify(ctx, p, scopeFrom(g))
 	if err != nil {
-		fmt.Fprintf(stderr, "obsidian %s: %v\n", name, err)
+		fmt.Fprintf(stderr, "doit %s: %v\n", name, err)
 		return 1
 	}
 	if driftOnly {
@@ -211,7 +211,7 @@ func cmdStatus(ctx context.Context, g *globals, o *output, args []string, stderr
 	verify := false
 	fs.BoolVar(&verify, "verify", false, "also compare the live host to the policy")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian status:", err)
+		fmt.Fprintln(stderr, "doit status:", err)
 		return 2
 	}
 	if !requireRoot(g, stderr, "status") {
@@ -220,12 +220,12 @@ func cmdStatus(ctx context.Context, g *globals, o *output, args []string, stderr
 	e := newEngine(g, o.w, stderr)
 	st, err := e.LoadState()
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian status:", err)
+		fmt.Fprintln(stderr, "doit status:", err)
 		return 1
 	}
 	txns, err := e.ListTransactions()
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian status:", err)
+		fmt.Fprintln(stderr, "doit status:", err)
 		return 1
 	}
 	report := statusReport{
@@ -247,7 +247,7 @@ func cmdStatus(ctx context.Context, g *globals, o *output, args []string, stderr
 		}
 		result, err := e.Verify(ctx, p, scopeFrom(g))
 		if err != nil {
-			fmt.Fprintln(stderr, "obsidian status:", err)
+			fmt.Fprintln(stderr, "doit status:", err)
 			return 1
 		}
 		report.Checks = result
@@ -257,7 +257,7 @@ func cmdStatus(ctx context.Context, g *globals, o *output, args []string, stderr
 		return 0
 	}
 	if !report.StateModified {
-		o.printf("%s obsidian has not applied a policy on this host\n", o.warn("status:"))
+		o.printf("%s doit has not applied a policy on this host\n", o.warn("status:"))
 	} else {
 		o.printf("%s applied %s (scope %s, transaction %s)\n", o.bold("Policy:"), report.LastApply, orDash(report.LastScope), orDash(report.Transaction))
 		o.printf("  source: %s\n", orDash(report.PolicyPath))
@@ -283,7 +283,7 @@ func cmdStatus(ctx context.Context, g *globals, o *output, args []string, stderr
 
 func cmdIsolate(ctx context.Context, g *globals, o *output, args []string, stderr io.Writer) int {
 	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
-		fmt.Fprintln(stderr, "usage: obsidian isolate NAME [flags]")
+		fmt.Fprintln(stderr, "usage: doit isolate NAME [flags]")
 		return 2
 	}
 	g.sandbox = args[0]

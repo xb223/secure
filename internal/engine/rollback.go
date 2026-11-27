@@ -9,19 +9,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 // Rollback restores a transaction by ID, or the newest committed transaction
 // when id is empty.
 func (e *Engine) Rollback(ctx context.Context, id string) (*Manifest, error) {
 	if e.Sys.EUID() != 0 {
-		return nil, fmt.Errorf("rollback requires root (try: sudo obsidian rollback)")
+		return nil, fmt.Errorf("rollback requires root (try: sudo doit rollback)")
 	}
 	if err := e.ensureDirs(); err != nil {
 		return nil, err
 	}
-	lock, err := system.AcquireLock(e.Sys.Path(filepath.Join(e.RunDir, "obsidian.lock")))
+	lock, err := system.AcquireLock(e.Sys.Path(filepath.Join(e.RunDir, "obscure.lock")))
 	if err != nil {
 		return nil, err
 	}

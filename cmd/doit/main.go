@@ -1,4 +1,4 @@
-// Command obsidian is a policy-driven Debian security and privacy toolkit.
+// Command obscure is a policy-driven Debian security and privacy toolkit.
 package main
 
 import (
@@ -10,14 +10,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/engine"
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/engine"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 var version = "0.1.0"
 
-const defaultConfigPath = "/etc/obsidian/policy.toml"
+const defaultConfigPath = "/etc/obscure/policy.toml"
 
 type globals struct {
 	config        string
@@ -41,7 +41,7 @@ func main() {
 
 func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	g := &globals{config: defaultConfigPath, timeout: int(engine.WatchdogTimeout.Seconds())}
-	global := flag.NewFlagSet("obsidian", flag.ContinueOnError)
+	global := flag.NewFlagSet("obscure", flag.ContinueOnError)
 	global.SetOutput(io.Discard)
 	addGlobalFlags(global, g)
 	if err := global.Parse(args); err != nil {
@@ -49,7 +49,7 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 			printHelp(stdout)
 			return 0
 		}
-		fmt.Fprintln(stderr, "obsidian:", err)
+		fmt.Fprintln(stderr, "doit:", err)
 		return 2
 	}
 	rest := global.Args()
@@ -65,7 +65,7 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		printHelp(stdout)
 		return 0
 	case "version", "--version":
-		fmt.Fprintf(stdout, "obsidian %s\n", version)
+		fmt.Fprintf(stdout, "obscure %s\n", version)
 		return 0
 	case "__watchdog":
 		return cmdWatchdog(cmdArgs, stderr)
@@ -98,7 +98,7 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	case "sandbox-run":
 		return cmdSandboxRun(cmdArgs, stderr)
 	default:
-		fmt.Fprintf(stderr, "obsidian: unknown command %q (try obsidian help)\n", command)
+		fmt.Fprintf(stderr, "doit: unknown command %q (try obscure help)\n", command)
 		return 2
 	}
 }
@@ -130,7 +130,7 @@ func newEngine(g *globals, stdout, stderr io.Writer) *engine.Engine {
 func loadPolicy(g *globals, stderr io.Writer) (*policy.Policy, bool) {
 	p, err := policy.Load(g.config)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian:", err)
+		fmt.Fprintln(stderr, "doit:", err)
 		return nil, false
 	}
 	return p, true
@@ -138,7 +138,7 @@ func loadPolicy(g *globals, stderr io.Writer) (*policy.Policy, bool) {
 
 func requireRoot(g *globals, stderr io.Writer, command string) bool {
 	if os.Geteuid() != 0 {
-		fmt.Fprintf(stderr, "obsidian: %s requires root (try: sudo obsidian %s)\n", command, command)
+		fmt.Fprintf(stderr, "doit: %s requires root (try: sudo doit %s)\n", command, command)
 		return false
 	}
 	return true
@@ -152,13 +152,13 @@ func scopeFrom(g *globals) engine.Scope {
 }
 
 func printHelp(w io.Writer) {
-	fmt.Fprint(w, `obsidian - policy-driven Debian security and privacy toolkit
+	fmt.Fprint(w, `obscure - policy-driven Debian security and privacy toolkit
 
 Usage:
-  obsidian [global flags] <command> [command flags]
+  obscure [global flags] <command> [command flags]
 
 Commands:
-  init        write a starter policy to /etc/obsidian/policy.toml
+  init        write a starter policy to /etc/obscure/policy.toml
   check       parse and validate the policy, with warnings
   plan        show every change apply would make
   apply       apply the policy transactionally, with rollback on failure
@@ -173,7 +173,7 @@ Commands:
   help        show this help
 
 Global flags:
-  --config PATH        policy file (default /etc/obsidian/policy.toml)
+  --config PATH        policy file (default /etc/obscure/policy.toml)
   --json               machine-readable output
   --no-color           disable color
   --verbose            show details

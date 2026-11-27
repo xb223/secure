@@ -20,7 +20,7 @@ func AcquireLock(path string) (*Lock, error) {
 	}
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		f.Close()
-		return nil, fmt.Errorf("another obsidian operation is running (lock %s)", path)
+		return nil, fmt.Errorf("another obscure operation is running (lock %s)", path)
 	}
 	_ = f.Truncate(0)
 	_, _ = fmt.Fprintf(f, "%d\n", os.Getpid())

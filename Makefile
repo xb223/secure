@@ -1,14 +1,14 @@
-# obsidian Makefile
+# obscure Makefile
 
 VERSION := 0.1.0
 GO_VERSION := 1.27
-BINARY := obsidian
+BINARY := doit
 PREFIX := /usr/local
 BINDIR := $(PREFIX)/bin
 MANDIR := $(PREFIX)/share/man/man1
-STATEDIR := /var/lib/obsidian
-RUNDIR := /run/obsidian
-CONFIGDIR := /etc/obsidian
+STATEDIR := /var/lib/obscure
+RUNDIR := /run/obscure
+CONFIGDIR := /etc/obscure
 SANDBOXDIR := $(CONFIGDIR)/sandbox
 UNITDIR := /etc/systemd/system
 
@@ -27,34 +27,34 @@ all: build
 .PHONY: build
 build: $(BINARY)
 
-$(BINARY): go.mod go.sum cmd/obsidian/main.go $(shell find internal -name '*.go')
-	$(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY) ./cmd/obsidian
+$(BINARY): go.mod go.sum cmd/obscure/main.go $(shell find internal -name '*.go')
+	$(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY) ./cmd/obscure
 
 # Cross-compile for Linux (static, CGO-free)
 .PHONY: build-linux
 build-linux:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY)-linux-amd64 ./cmd/obsidian
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY)-linux-arm64 ./cmd/obsidian
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY)-linux-amd64 ./cmd/obscure
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GO) build $(GOFLAGS) -tags "$(BUILD_TAGS)" -o $(BINARY)-linux-arm64 ./cmd/obscure
 
 # Install the binary, man page, and create required directories
 .PHONY: install
 install: build
 	install -Dm755 $(BINARY) $(DESTDIR)$(BINDIR)/$(BINARY)
-	install -Dm644 obsidian.1 $(DESTDIR)$(MANDIR)/obsidian.1
+	install -Dm644 obscure.1 $(DESTDIR)$(MANDIR)/obscure.1
 	install -d -m755 $(DESTDIR)$(CONFIGDIR)
 	install -d -m755 $(DESTDIR)$(SANDBOXDIR)
 	install -d -m700 $(DESTDIR)$(STATEDIR)
 	install -d -m700 $(DESTDIR)$(RUNDIR)
 	install -d -m755 $(DESTDIR)$(UNITDIR)
 	@echo "Installed $(BINARY) to $(DESTDIR)$(BINDIR)/$(BINARY)"
-	@echo "Man page installed to $(DESTDIR)$(MANDIR)/obsidian.1"
+	@echo "Man page installed to $(DESTDIR)$(MANDIR)/obscure.1"
 	@echo "Created directories: $(CONFIGDIR), $(SANDBOXDIR), $(STATEDIR), $(RUNDIR)"
 
 # Uninstall
 .PHONY: uninstall
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/$(BINARY)
-	rm -f $(DESTDIR)$(MANDIR)/obsidian.1
+	rm -f $(DESTDIR)$(MANDIR)/obscure.1
 	@echo "Removed $(BINARY) and man page"
 
 # Run tests

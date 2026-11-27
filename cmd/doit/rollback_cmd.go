@@ -17,7 +17,7 @@ func cmdRollback(ctx context.Context, g *globals, o *output, args []string, stde
 	fs.StringVar(&id, "t", "", "transaction ID (shorthand)")
 	fs.BoolVar(&list, "list", false, "list transactions and exit")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintln(stderr, "obsidian rollback:", err)
+		fmt.Fprintln(stderr, "doit rollback:", err)
 		return 2
 	}
 	if !requireRoot(g, stderr, "rollback") {
@@ -27,7 +27,7 @@ func cmdRollback(ctx context.Context, g *globals, o *output, args []string, stde
 	if list {
 		txns, err := e.ListTransactions()
 		if err != nil {
-			fmt.Fprintln(stderr, "obsidian rollback:", err)
+			fmt.Fprintln(stderr, "doit rollback:", err)
 			return 1
 		}
 		if g.json {
@@ -53,7 +53,7 @@ func cmdRollback(ctx context.Context, g *globals, o *output, args []string, stde
 	}
 	m, err := e.Rollback(ctx, id)
 	if err != nil {
-		fmt.Fprintln(stderr, "obsidian rollback:", err)
+		fmt.Fprintln(stderr, "doit rollback:", err)
 		return 1
 	}
 	if g.json {

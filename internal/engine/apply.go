@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 // ApplyResult describes a completed or rolled-back apply.
@@ -29,12 +29,12 @@ type ApplyResult struct {
 func (e *Engine) Apply(ctx context.Context, p *policy.Policy, scope Scope, timeout int, allowLockout bool, expectedFingerprint string) (*ApplyResult, error) {
 	start := time.Now()
 	if e.Sys.EUID() != 0 {
-		return nil, fmt.Errorf("apply requires root (try: sudo obsidian apply)")
+		return nil, fmt.Errorf("apply requires root (try: sudo doit apply)")
 	}
 	if err := e.ensureDirs(); err != nil {
 		return nil, err
 	}
-	lock, err := system.AcquireLock(e.Sys.Path(filepath.Join(e.RunDir, "obsidian.lock")))
+	lock, err := system.AcquireLock(e.Sys.Path(filepath.Join(e.RunDir, "obscure.lock")))
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (e *Engine) Apply(ctx context.Context, p *policy.Policy, scope Scope, timeo
 		return nil, fmt.Errorf("refusing to apply: %s", strings.Join(fresh.Errors, "; "))
 	}
 	if expectedFingerprint != "" && planFingerprint(fresh) != expectedFingerprint {
-		return nil, fmt.Errorf("host or policy changed after the plan was displayed; re-run obsidian plan")
+		return nil, fmt.Errorf("host or policy changed after the plan was displayed; re-run doit plan")
 	}
 	if !fresh.HasChanges() {
 		return &ApplyResult{Changes: 0, Duration: time.Since(start)}, nil
@@ -196,15 +196,15 @@ func (e *Engine) execute(ctx context.Context, p *policy.Policy, plan *Plan, dir 
 		return err
 	}
 
-	mainNFT := findNFT(d, "inet obsidian")
-	sandboxNFT := findNFT(d, "inet obsidian_sandbox")
+	mainNFT := findNFT(d, "inet obscure")
+	sandboxNFT := findNFT(d, "inet obscure_sandbox")
 	transition := false
 	if d.SSHManaged && p.Exposure.SSH != policy.ExposureDisabled && p.Exposure.SSH != policy.ExposureLoopback && currentPort != p.Admin.SSHPort {
 		trans, err := render.RenderFirewallTransition(p, currentPort)
 		if err != nil {
 			return err
 		}
-		if err := e.applyNFT(ctx, "inet obsidian", trans.Content); err != nil {
+		if err := e.applyNFT(ctx, "inet obscure", trans.Content); err != nil {
 			return err
 		}
 		e.logf("applied transition firewall accepting SSH on ports %d and %d", currentPort, p.Admin.SSHPort)
@@ -225,12 +225,12 @@ func (e *Engine) execute(ctx context.Context, p *policy.Policy, plan *Plan, dir 
 		}
 		e.logf("applied sandbox egress table %s", sandboxNFT.Name)
 	} else if plan.Scope.IsFull() {
-		if err := e.deleteNFT(ctx, "inet obsidian_sandbox"); err != nil {
+		if err := e.deleteNFT(ctx, "inet obscure_sandbox"); err != nil {
 			e.logf("note: could not delete obsolete sandbox table: %v", err)
 		}
 	}
 	for name := range plan.State.NFT {
-		if name == "inet obsidian" || name == "inet obsidian_sandbox" {
+		if name == "inet obscure" || name == "inet obscure_sandbox" {
 			continue
 		}
 		_ = e.deleteNFT(ctx, name)
@@ -374,7 +374,7 @@ func (e *Engine) loadAuditRules(ctx context.Context) error {
 	return fmt.Errorf("neither augenrules nor auditctl is available")
 }
 
-const auditRulesFile = "/etc/audit/rules.d/90-obsidian.rules"
+const auditRulesFile = "/etc/audit/rules.d/90-obscure.rules"
 
 func (e *Engine) applyAppArmor(ctx context.Context, d *render.Desired, st *State, scope Scope) error {
 	if !e.commandExists("apparmor_parser") {
@@ -523,11 +523,11 @@ func changedSectionsFromPlan(plan *Plan) map[string]bool {
 	for _, c := range plan.Changes {
 		if c.Kind == "file" || c.Kind == "delete-file" {
 			switch {
-			case c.Target == "/etc/ssh/sshd_config.d/00-obsidian.conf":
+			case c.Target == "/etc/ssh/sshd_config.d/00-obscure.conf":
 				out["ssh"] = true
 			case strings.Contains(c.Target, "journald") || strings.Contains(c.Target, "resolved"):
 				out["privacy"] = true
-			case strings.HasPrefix(c.Target, "/etc/obsidian/sandbox/"):
+			case strings.HasPrefix(c.Target, "/etc/obscure/sandbox/"):
 				out["sandbox"] = true
 			}
 		}
@@ -589,7 +589,7 @@ func (e *Engine) preflight(ctx context.Context, p *policy.Policy, d *render.Desi
 		} else if res := e.Sys.Runner.Run(ctx, bin, "-t"); !res.Success() {
 			return fmt.Errorf("current sshd configuration is invalid: %s", res.Error())
 		}
-		sshArt := findArtifact(d, "/etc/ssh/sshd_config.d/00-obsidian.conf")
+		sshArt := findArtifact(d, "/etc/ssh/sshd_config.d/00-obscure.conf")
 		if sshArt != nil {
 			path, err := e.tempFile("preflight-sshd.conf", sshArt.Content)
 			if err != nil {
@@ -653,7 +653,7 @@ func (e *Engine) nftCheck(ctx context.Context, table render.NFTTable) error {
 		b.WriteString(line)
 		b.WriteString("\n")
 	}
-	scratch := "obsidian_validate"
+	scratch := "obscure_validate"
 	content := strings.ReplaceAll(b.String(), "table "+parts[0]+" "+parts[1], "table "+parts[0]+" "+scratch)
 	path, err := e.tempFile("preflight-"+sanitize(strings.ReplaceAll(table.Name, " ", "-"))+".nft", []byte(content))
 	if err != nil {
@@ -707,7 +707,7 @@ func (e *Engine) buildState(ctx context.Context, p *policy.Policy, d *render.Des
 			}
 		}
 		for name, hash := range old.AppArmor {
-			if !strings.HasPrefix(name, "obsidian-") {
+			if !strings.HasPrefix(name, "obscure-") {
 				next.AppArmor[name] = hash
 			}
 		}

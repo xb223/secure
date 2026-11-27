@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/system"
 )
 
 // Verify compares the live host to policy without changing anything.
@@ -41,7 +41,7 @@ func (e *Engine) Verify(ctx context.Context, p *policy.Policy, scope Scope) (*Ve
 		switch {
 		case st.PolicyHash == "":
 			add(Check{ID: "state:policy", Section: "state", Target: "state", Status: CheckDrift,
-				Expected: "an applied policy", Actual: "never applied", Detail: "run obsidian apply"})
+				Expected: "an applied policy", Actual: "never applied", Detail: "run doit apply"})
 		case st.PolicyHash != p.Digest:
 			add(Check{ID: "state:policy", Section: "state", Target: "state", Status: CheckDrift,
 				Expected: p.Digest, Actual: st.PolicyHash, Detail: "policy changed since the last apply"})
@@ -195,7 +195,7 @@ func (e *Engine) verifyNFT(ctx context.Context, p *policy.Policy, d *render.Desi
 		}
 		if expected == "" {
 			add(Check{ID: id, Section: "nft", Target: table.Name, Status: CheckDrift,
-				Expected: "applied policy ruleset", Actual: "no applied ruleset recorded", Detail: "run obsidian apply"})
+				Expected: "applied policy ruleset", Actual: "no applied ruleset recorded", Detail: "run doit apply"})
 			continue
 		}
 		live, err := e.nftCanonical(ctx, table.Name)
@@ -339,7 +339,7 @@ func (e *Engine) verifyAudit(ctx context.Context, d *render.Desired, add func(Ch
 		return
 	}
 	missing := []string{}
-	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obsidian"} {
+	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obscure"} {
 		if !strings.Contains(string(rules.Stdout), path) {
 			missing = append(missing, path)
 		}

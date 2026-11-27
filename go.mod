@@ -1,4 +1,4 @@
-module github.com/obsidian-toolkit/obsidian
+module github.com/obscure-toolkit/obscure
 
 go 1.27.4
 

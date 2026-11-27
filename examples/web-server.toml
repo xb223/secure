@@ -1,7 +1,7 @@
-# Example obsidian policy: a small public web server administered over SSH.
+# Example obscure policy: a small public web server administered over SSH.
 #
-# Copy to /etc/obsidian/policy.toml (or run `obsidian init`) and edit the
-# addresses and interface. Preview every change with `obsidian plan` before
+# Copy to /etc/obscure/policy.toml (or run `doit init`) and edit the
+# addresses and interface. Preview every change with `doit plan` before
 # applying it. The toolkit refuses to apply changes that could lock out the
 # SSH session it is running in.
 

@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
 )
 
 // BuildDesired renders and validates the policy against the host.
@@ -137,8 +137,8 @@ func FilterDesired(d *render.Desired, scope Scope) *render.Desired {
 		}
 	}
 	for _, svc := range d.Services {
-		if svc.Name == "obsidian-sandbox-firewall.service" || strings.HasPrefix(svc.Name, "obsidian-") && svc.Name != "obsidian-firewall.service" {
-			if scope.Sandbox == "" || svc.Name == "obsidian-"+scope.Sandbox+".service" || svc.Name == "obsidian-sandbox-firewall.service" {
+		if svc.Name == "obscure-sandbox-firewall.service" || strings.HasPrefix(svc.Name, "obscure-") && svc.Name != "obscure-firewall.service" {
+			if scope.Sandbox == "" || svc.Name == "obscure-"+scope.Sandbox+".service" || svc.Name == "obscure-sandbox-firewall.service" {
 				out.Services = append(out.Services, svc)
 			}
 		}

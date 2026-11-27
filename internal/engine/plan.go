@@ -8,10 +8,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
-	"github.com/obsidian-toolkit/obsidian/internal/system"
-	"github.com/obsidian-toolkit/obsidian/internal/textdiff"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/system"
+	"github.com/obscure-toolkit/obscure/internal/textdiff"
 )
 
 const (
@@ -96,7 +96,7 @@ func (e *Engine) Plan(ctx context.Context, p *policy.Policy, scope Scope, allowL
 			continue
 		}
 		if current != hash {
-			plan.Warnings = append(plan.Warnings, policy.Warning{Field: path, Message: "file was modified after obsidian created it; leaving it in place"})
+			plan.Warnings = append(plan.Warnings, policy.Warning{Field: path, Message: "file was modified after obscure created it; leaving it in place"})
 			continue
 		}
 		plan.Changes = append(plan.Changes, Change{
@@ -144,13 +144,13 @@ func changeAffectsSSH(c Change) bool {
 	if c.Kind == "ssh" {
 		return true
 	}
-	if c.Kind == "nft" && c.Target == "inet obsidian" {
+	if c.Kind == "nft" && c.Target == "inet obscure" {
 		return true
 	}
 	if c.Kind == "service" && (c.Target == "ssh" || c.Target == "sshd") {
 		return true
 	}
-	if c.Target == "/etc/ssh/sshd_config.d/00-obsidian.conf" {
+	if c.Target == "/etc/ssh/sshd_config.d/00-obscure.conf" {
 		return true
 	}
 	return false
@@ -191,8 +191,8 @@ func (e *Engine) planFile(art render.Artifact) (*Change, string, error) {
 		action = "update mode"
 	}
 	warn := ""
-	if !contentSame && !strings.Contains(string(current), "Managed by obsidian") && len(current) > 0 {
-		warn = "existing file was not created by obsidian and will be replaced (a snapshot is kept)"
+	if !contentSame && !strings.Contains(string(current), "Managed by obscure") && len(current) > 0 {
+		warn = "existing file was not created by obscure and will be replaced (a snapshot is kept)"
 	}
 	return &Change{
 		Order: orderFile, Kind: "file", Target: art.Path, Action: action,
@@ -218,20 +218,20 @@ func inScope(path string, scope Scope) bool {
 	if scope.IsFull() {
 		return true
 	}
-	if strings.HasPrefix(path, "/etc/obsidian/sandbox/") || path == "/etc/obsidian/sandbox.nft" {
+	if strings.HasPrefix(path, "/etc/obscure/sandbox/") || path == "/etc/obscure/sandbox.nft" {
 		return true
 	}
-	if strings.HasPrefix(path, "/etc/apparmor.d/obsidian-") {
-		return scope.Sandbox == "" || path == "/etc/apparmor.d/obsidian-"+scope.Sandbox
+	if strings.HasPrefix(path, "/etc/apparmor.d/obscure-") {
+		return scope.Sandbox == "" || path == "/etc/apparmor.d/obscure-"+scope.Sandbox
 	}
-	if strings.HasPrefix(path, "/etc/systemd/system/obsidian-") {
-		if path == "/etc/systemd/system/obsidian-firewall.service" {
+	if strings.HasPrefix(path, "/etc/systemd/system/obscure-") {
+		if path == "/etc/systemd/system/obscure-firewall.service" {
 			return false
 		}
-		if path == "/etc/systemd/system/obsidian-sandbox-firewall.service" {
+		if path == "/etc/systemd/system/obscure-sandbox-firewall.service" {
 			return true
 		}
-		return scope.Sandbox == "" || path == "/etc/systemd/system/obsidian-"+scope.Sandbox+".service"
+		return scope.Sandbox == "" || path == "/etc/systemd/system/obscure-"+scope.Sandbox+".service"
 	}
 	return false
 }
@@ -336,7 +336,7 @@ func planServices(ctx context.Context, e *Engine, p *policy.Policy, d *render.De
 			})
 		}
 	}
-	// Services obsidian used to manage but the policy no longer mentions.
+	// Services obscure used to manage but the policy no longer mentions.
 	for name, origin := range st.Services {
 		if _, ok := desired[name]; ok || !serviceInScope(name, plan.Scope) {
 			continue
@@ -383,11 +383,11 @@ func serviceInScope(name string, scope Scope) bool {
 	if scope.IsFull() {
 		return true
 	}
-	if name == "obsidian-sandbox-firewall.service" {
+	if name == "obscure-sandbox-firewall.service" {
 		return true
 	}
-	if strings.HasPrefix(name, "obsidian-") && name != "obsidian-firewall.service" {
-		return scope.Sandbox == "" || name == "obsidian-"+scope.Sandbox+".service"
+	if strings.HasPrefix(name, "obscure-") && name != "obscure-firewall.service" {
+		return scope.Sandbox == "" || name == "obscure-"+scope.Sandbox+".service"
 	}
 	return false
 }
@@ -493,7 +493,7 @@ func tableNameInScope(name string, scope Scope) bool {
 	if scope.IsFull() {
 		return true
 	}
-	return name == "inet obsidian_sandbox"
+	return name == "inet obscure_sandbox"
 }
 
 func planAppArmor(ctx context.Context, e *Engine, d *render.Desired, changedSections map[string]bool, plan *Plan) {
@@ -564,7 +564,7 @@ func planAudit(ctx context.Context, e *Engine, d *render.Desired, changedSection
 	}
 	if changedSections["audit"] {
 		plan.Changes = append(plan.Changes, Change{
-			Order: orderAudit, Kind: "audit", Target: "/etc/audit/rules.d/90-obsidian.rules", Action: "load",
+			Order: orderAudit, Kind: "audit", Target: "/etc/audit/rules.d/90-obscure.rules", Action: "load",
 			Reason: "apply the audit baseline", Risk: RiskAttention,
 		})
 		return
@@ -574,10 +574,10 @@ func planAudit(ctx context.Context, e *Engine, d *render.Desired, changedSection
 		plan.Warnings = append(plan.Warnings, policy.Warning{Field: "audit", Message: "cannot read loaded audit rules: " + res.Error()})
 		return
 	}
-	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obsidian"} {
+	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obscure"} {
 		if !strings.Contains(string(res.Stdout), path) {
 			plan.Changes = append(plan.Changes, Change{
-				Order: orderAudit, Kind: "audit", Target: "/etc/audit/rules.d/90-obsidian.rules", Action: "load",
+				Order: orderAudit, Kind: "audit", Target: "/etc/audit/rules.d/90-obscure.rules", Action: "load",
 				Reason: "loaded audit rules are missing a watch on " + path, Risk: RiskAttention,
 			})
 			return

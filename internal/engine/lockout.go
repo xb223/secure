@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/obsidian-toolkit/obsidian/internal/policy"
-	"github.com/obsidian-toolkit/obsidian/internal/render"
+	"github.com/obscure-toolkit/obscure/internal/policy"
+	"github.com/obscure-toolkit/obscure/internal/render"
 )
 
 func (e *Engine) assessLockout(ctx context.Context, p *policy.Policy, d *render.Desired, changes []Change, allow bool) LockoutReport {
@@ -64,7 +64,7 @@ func (e *Engine) assessLockout(ctx context.Context, p *policy.Policy, d *render.
 		// Disabling password authentication does not end the current session,
 		// but it can lock out the administrator's next login. Only treat it as
 		// a lockout risk when the session used a password or when no usable key
-		// can be found for the account that invoked obsidian.
+		// can be found for the account that invoked obscure.
 		switch e.sshSessionAuthMethod(ctx, sess.ClientIP) {
 		case "publickey":
 			// The current administrator already authenticates with a key.
@@ -77,7 +77,7 @@ func (e *Engine) assessLockout(ctx context.Context, p *policy.Policy, d *render.
 		}
 	}
 	if value, ok := effective["permitrootlogin"]; ok && value != "no" && p.Admin.RootLogin == "no" && e.Sys.Env("SUDO_USER") == "" {
-		report.Reasons = append(report.Reasons, "root login is being disabled while obsidian appears to run as root over SSH")
+		report.Reasons = append(report.Reasons, "root login is being disabled while obscure appears to run as root over SSH")
 	}
 
 	if len(report.Reasons) == 0 {
@@ -93,7 +93,7 @@ func sshReachabilityChanged(changes []Change) bool {
 	for _, c := range changes {
 		switch c.Kind {
 		case "nft":
-			if c.Target == "inet obsidian" {
+			if c.Target == "inet obscure" {
 				return true
 			}
 		case "service":
@@ -103,7 +103,7 @@ func sshReachabilityChanged(changes []Change) bool {
 		case "ssh":
 			return true
 		case "file":
-			if c.Target == "/etc/ssh/sshd_config.d/00-obsidian.conf" {
+			if c.Target == "/etc/ssh/sshd_config.d/00-obscure.conf" {
 				return true
 			}
 		}
@@ -143,7 +143,7 @@ func (e *Engine) sshSessionAuthMethod(ctx context.Context, addr netip.Addr) stri
 	return method
 }
 
-// remoteUserHasKey reports whether the account that invoked obsidian (via
+// remoteUserHasKey reports whether the account that invoked obscure (via
 // sudo) has a non-empty authorized_keys file.
 func (e *Engine) remoteUserHasKey() bool {
 	name := e.Sys.Env("SUDO_USER")
