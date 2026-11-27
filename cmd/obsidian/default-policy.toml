@@ -1,0 +1,38 @@
+# obsidian policy. See obsidian(1) and `obsidian explain`.
+#
+# Start with the real public interface and the address range you administer
+# from. Preview every change with `sudo obsidian plan` before applying it.
+
+role = "web-server"
+public_interface = "eth0"
+
+[exposure]
+https = "public"
+ssh = "admin-only"
+
+[admin]
+source_cidrs = ["203.0.113.0/24"]
+# interfaces = ["eth0"]        # defaults to public_interface
+# ssh_port = 22
+# password_auth = false        # public-key authentication is enforced
+# root_login = "no"
+# allow_tcp_forwarding = false
+
+[privacy]
+telemetry = "deny"
+dns = "local-resolver"
+# dns_servers = ["1.1.1.1#cloudflare-dns.com", "9.9.9.9#dns.quad9.net"]
+# dns_over_tls = "opportunistic"
+log_retention_days = 14
+# log_max_mb = 500
+
+[services]
+nginx = "enabled"
+postfix = "disabled"
+
+# [sandbox.myapp]
+# binary = "/usr/local/bin/myapp"
+# run_as = "myapp"   # dedicated service account, never a login user
+# read_write = ["/var/lib/myapp"]
+# read_only = ["/etc/myapp"]
+# network = "outbound-https"
