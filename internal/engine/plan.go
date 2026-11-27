@@ -574,7 +574,7 @@ func planAudit(ctx context.Context, e *Engine, d *render.Desired, changedSection
 		plan.Warnings = append(plan.Warnings, policy.Warning{Field: "audit", Message: "cannot read loaded audit rules: " + res.Error()})
 		return
 	}
-	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obsidian/"} {
+	for _, path := range []string{"/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/obsidian"} {
 		if !strings.Contains(string(res.Stdout), path) {
 			plan.Changes = append(plan.Changes, Change{
 				Order: orderAudit, Kind: "audit", Target: "/etc/audit/rules.d/90-obsidian.rules", Action: "load",
