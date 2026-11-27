@@ -1,0 +1,215 @@
+.\" obsidian(1) - policy-driven Debian security and privacy toolkit
+.\"
+.\" Copyright 2024 The obsidian Authors
+.\" Licensed under the Apache License, Version 2.0
+.\"
+.TH OBSIDIAN 1 "November 2024" "obsidian 0.1.0" "User Commands"
+.SH NAME
+obsidian \- policy-driven Debian security and privacy toolkit
+.SH SYNOPSIS
+.B obsidian
+[\fIglobal flags\fR] \fIcommand\fR [\fIcommand flags\fR]
+.SH DESCRIPTION
+.B obsidian
+manages firewall rules, SSH hardening, kernel sysctls, audit rules, log
+retention, unattended upgrades, and service sandboxing from a single
+declarative TOML policy. All operations are transactional, reversible, and
+designed to never accidentally lock you out of a remote server.
+.SH COMMANDS
+.TP
+.B init
+Write a starter policy to \fI/etc/obsidian/policy.toml\fR.
+.TP
+.B check
+Parse and validate the policy, showing warnings.
+.TP
+.B plan
+Show every change \fBapply\fR would make, with diffs.
+.TP
+.B apply
+Apply the policy transactionally: snapshot \fB\->\fR apply \fB\->\fR verify
+\fB\->\fR commit. Rolls back automatically on any failure.
+.TP
+.B verify
+Compare the live host to the policy; exit 1 on drift.
+.TP
+.B drift
+Like \fBverify\fR but show only drift items.
+.TP
+.B status
+Show the applied policy digest, managed files, services, and recent
+transactions.
+.TP
+.B rollback [\fB--transaction\fR \fIID\fR] [\fB--list\fR]
+Restore a previous transaction. Without \fB--transaction\fR, rolls back the
+newest committed transaction. Use \fB--list\fR to see available transactions.
+.TP
+.B isolate \fINAME\fR
+Apply only the sandbox named \fINAME\fR (equivalent to \fBapply --sandbox
+NAME\fR).
+.TP
+.B render [\fB--output\fR \fIDIR\fR]
+Render all managed files to stdout or to \fIDIR\fR without touching the host.
+.TP
+.B explain
+Print a human-readable explanation of what the policy asks for and why.
+.TP
+.B version
+Print the version and exit.
+.TP
+.B help
+Show this help message.
+.SH GLOBAL FLAGS
+.TP
+.B --config \fIPATH\fR
+Policy file (default \fI/etc/obsidian/policy.toml\fR).
+.TP
+.B --json
+Machine-readable JSON output.
+.TP
+.B --no-color
+Disable colored output.
+.TP
+.B --verbose
+Show every command and check.
+.TP
+.B --strict
+Treat policy warnings as errors.
+.TP
+.B --yes
+Do not ask for confirmation (non-interactive).
+.TP
+.B --dry-run
+Plan only, never change the host.
+.TP
+.B --allow-lockout
+Permit changes that may end the current SSH session.
+.TP
+.B --allow-degraded
+Continue when a requested isolation feature (AppArmor, Landlock, seccomp)
+is unavailable on the host.
+.TP
+.B --no-packages
+Never install packages via apt.
+.TP
+.B --sandbox \fINAME\fR
+Limit plan/apply/verify to the sandbox named \fINAME\fR.
+.TP
+.B --timeout \fISECONDS\fR
+Watchdog grace period (default 120).
+.SH POLICY FILE
+The policy is a TOML file with the following keys:
+.TP
+.B role
+One of \fIweb-server\fR, \fIssh-bastion\fR, \fIworkstation\fR, \fIcustom\fR.
+.TP
+.B public_interface
+The network interface that carries public traffic (e.g. \fIeth0\fR).
+.TP
+.B [exposure]
+Network exposure modes for each service: \fIdisabled\fR, \fIloopback\fR,
+\fIadmin-only\fR, or \fIpublic\fR. Keys: \fIssh\fR, \fIhttps\fR, \fIhttp\fR,
+\fIsmtp\fR, \fIdns\fR, \fIntp\fR.
+.TP
+.B [admin]
+Administrative access settings: \fIsource_cidrs\fR (required for admin-only
+exposure), \fIinterfaces\fR, \fIssh_port\fR, \fIpassword_auth\fR,
+\fIroot_login\fR (\fIno\fR, \fIprohibit-password\fR, \fIyes\fR),
+\fIallow_tcp_forwarding\fR.
+.TP
+.B [privacy]
+\fItelemetry\fR (\fIdeny\fR/\fIallow\fR), \fIdns\fR (\fIsystem\fR/\fIlocal-resolver\fR),
+\fIdns_servers\fR, \fIdns_over_tls\fR, \fIlog_retention_days\fR, \fIlog_max_mb\fR.
+.TP
+.B [services]
+Map of systemd unit name to desired state: \fIenabled\fR, \fIdisabled\fR,
+\fImasked\fR.
+.TP
+.B [sandbox.\fINAME\fR]
+Service isolation: \fIbinary\fR, \fIrun_as\fR, \fIgroup\fR, \fIargs\fR,
+\fIread_write\fR, \fIread_only\fR, \fInetwork\fR (\fInone\fR, \fIloopback\fR,
+\fIoutbound-https\fR, \fIoutbound\fR), \fIapparmor\fR, \fIlandlock\fR,
+\fIrestart\fR, \fIsyscall_filter\fR.
+.TP
+.B [updates]
+\fIunattended\fR, \fIauto_reboot\fR, \fIreboot_time\fR.
+.TP
+.B [audit]
+\fIenabled\fR.
+.TP
+.B [hardening]
+\fIsysctl\fR, \fIssh\fR.
+.SH SAFETY
+If \fBobsidian\fR detects it is running inside an SSH session (via
+\fISSH_CONNECTION\fR, \fISSH_CLIENT\fR, or process ancestry), it refuses to
+apply firewall or SSH changes that would drop that session, unless
+\fB--allow-lockout\fR is given. This prevents accidental lockout of remote
+servers.
+.SH TRANSACTIONS
+Every \fBapply\fR creates a transaction directory under
+\fI/var/lib/obsidian/transactions/\fR containing snapshots of all managed
+files, service states, and nftables rulesets. On failure, the transaction is
+rolled back automatically. Use \fBrollback\fR to restore a previous state
+manually.
+.SH FILES
+.TP
+\fI/etc/obsidian/policy.toml\fR
+Policy file.
+.TP
+\fI/var/lib/obsidian/state.json\fR
+Current applied state.
+.TP
+\fI/var/lib/obsidian/transactions/\fR
+Transaction snapshots.
+.TP
+\fI/run/obsidian.lock\fR
+Global lock preventing concurrent applies.
+.SH EXAMPLES
+.TP
+.B Create and edit a policy
+.in +4
+.nf
+$ sudo obsidian init
+$ sudo vim /etc/obsidian/policy.toml
+.fi
+.in
+.TP
+.B Preview and apply
+.in +4
+.nf
+$ sudo obsidian plan
+$ sudo obsidian apply
+.fi
+.in
+.TP
+.B Verify and show drift
+.in +4
+.nf
+$ sudo obsidian verify
+$ sudo obsidian drift
+.fi
+.in
+.TP
+.B Roll back the last apply
+.in +4
+.nf
+$ sudo obsidian rollback
+.fi
+.in
+.TP
+.B Apply only one sandbox
+.in +4
+.nf
+$ sudo obsidian isolate myapp
+.fi
+.in
+.SH SEE ALSO
+.BR systemd (1),
+.BR nft (8),
+.BR apparmor (7),
+.BR landlock (7),
+.BR auditd (8)
+.SH AUTHORS
+The obsidian Authors <https://github.com/obsidian-toolkit/obsidian>
+.SH LICENSE
+Apache-2.0

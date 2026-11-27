@@ -1,0 +1,37 @@
+# Build artifacts
+obsidian
+obsidian-*
+*.test
+
+# Go
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test output
+*.out
+coverage.*
+*.prof
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Policy (local overrides)
+/etc/obsidian/policy.toml
+!/etc/obsidian/policy.toml.example
+
+# State directories (created at runtime)
+/var/lib/obsidian/
+/run/obsidian/
