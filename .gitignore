@@ -1,8 +1,11 @@
 # Build artifacts
+/doit
+/doit-*
 /obscure
 /obscure-*
-!cmd/obscure/
-*.test
+/obsidian
+/obsidian-*
+!cmd/doit/
 
 # Go
 vendor/
